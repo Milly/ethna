@@ -42,7 +42,7 @@ class Ethna_Plugin_Handle_MakePluginPackage extends Ethna_Plugin_Handle
         }
         list($opt_list, $arg_list) = $r;
 
-        //  plugin directory path 
+        //  plugin directory path
         $plugin_dir = array_shift($arg_list);
         if (empty($plugin_dir)) {
             return Ethna::raiseError('plugin directory path is not set.', 'usage');
@@ -103,7 +103,7 @@ class Ethna_Plugin_Handle_MakePluginPackage extends Ethna_Plugin_Handle
               . "usage: pear install -a pear/PackageFileManager2 "
             );
         }
- 
+
         require_once 'PEAR/PackageFileManager2.php';
         require_once 'PEAR/PackageFileManager/File.php';
 
@@ -124,6 +124,18 @@ class Ethna_Plugin_Handle_MakePluginPackage extends Ethna_Plugin_Handle
         $setting['channel']     = $ini['package']['channel'];
         $setting['summary']     = $ini['package']['summary'];
         $setting['description'] = $ini['package']['description'];
+
+        // パッケージの依存
+        $setting['depends'][] = array('optional', 'ethna', 'pear.ethna.jp', '2.6.0');
+        $pkgs = $ini['package'];
+        for ($i = 1; ; $i++) {
+            if (isset($pkgs["depends$i"]) == false) {
+                break;
+            }
+            $dep = explode(',', $pkgs["depends$i"]);
+            $dep = array_map('trim', $dep);
+            $setting['depends'][] = $dep;
+        }
 
         // リリースの説明
         $setting['version']     = $ini['release']['version'];
@@ -160,8 +172,7 @@ class Ethna_Plugin_Handle_MakePluginPackage extends Ethna_Plugin_Handle
 
         // 任意に $packagexml->doSomething() するための callback
         $setting['callback'] = array(
-            'addPackageDepWithChannel'
-                => array('optional', 'ethna', 'pear.ethna.jp', '2.6.0'),
+            // 'methodName' => array('arg1', 'arg2'),
             );
 
         // パッケージ作成
@@ -218,6 +229,10 @@ class Ethna_Plugin_Handle_MakePluginPackage extends Ethna_Plugin_Handle
 
         $packagexml->generateContents();
 
+        foreach ($setting['depends'] as $params) {
+            $r = call_user_func_array(array($packagexml, 'addPackageDepWithChannel'), $params);
+        }
+
         foreach ($setting['callback'] as $method => $params) {
             $r = call_user_func_array(array($packagexml, $method), $params);
         }
@@ -251,7 +266,7 @@ class Ethna_Plugin_Handle_MakePluginPackage extends Ethna_Plugin_Handle
     function getUsage()
     {
         return <<<EOS
-    {$this->id} [-b|--basedir=dir] [-i|--ini-file-path=file] [plugin_directory_path] 
+    {$this->id} [-b|--basedir=dir] [-i|--ini-file-path=file] [plugin_directory_path]
 EOS;
     }
     // }}}
@@ -264,7 +279,7 @@ EOS;
     {
         return <<<EOS
 make plugin package:
-    {$this->id} [-b|--basedir=dir] [-i|--ini-file-path=file] [plugin_directory_path] 
+    {$this->id} [-b|--basedir=dir] [-i|--ini-file-path=file] [plugin_directory_path]
 EOS;
     }
     // }}}
