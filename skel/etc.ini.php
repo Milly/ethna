@@ -28,7 +28,7 @@ $config = array(
     // ),
 
     // log
-    // sample-1: sigile facility
+    // sample-1: single facility
     'log_facility'          => 'echo',
     'log_level'             => 'warning',
     'log_option'            => 'pid,function,pos',

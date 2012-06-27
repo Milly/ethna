@@ -115,7 +115,7 @@ class Ethna_Plugin_Cachemanager extends Ethna_Plugin_Abstract
      *  @param  int     $lifetime   キャッシュ有効期間
      *  @param  string  $namespace  キャッシュネームスペース
      */
-    public function isCached($key, $timestamp = null, $namespace = null)
+    public function isCached($key, $lifetime = null, $namespace = null)
     {
     }
 
@@ -161,7 +161,7 @@ class Ethna_Plugin_Cachemanager extends Ethna_Plugin_Abstract
      * 圧縮フラグを立てる
      *
      * MySQLなどいくつかの子クラスで有効
-     * 
+     *
      * @access public
      * @param bool $flag フラグ
      */
